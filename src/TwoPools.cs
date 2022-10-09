@@ -21,16 +21,16 @@ public sealed class TwoPools<TLeft, TRight>
         GenerateLinks();
     }
     #region fields
-    internal List<TLeft> left = new();
-    internal List<TRight> right = new();
+    private List<TLeft> left = new();
+    private List<TRight> right = new();
     /// <summary>
     /// Index on the left, associated indices on the right
     /// </summary>
-    internal Dictionary<int, List<int>> bindFromLeft = new();
+    private Dictionary<int, List<int>> bindFromLeft = new();
     /// <summary>
     /// Index on the right, associated indices on the left
     /// </summary>
-    internal Dictionary<int, List<int>> bindFromRight = new();
+    private Dictionary<int, List<int>> bindFromRight = new();
     #endregion
 
     #region public methods
