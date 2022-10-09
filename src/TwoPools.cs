@@ -1,0 +1,191 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+public sealed class TwoPools<TLeft, TRight>
+    where TRight : IEquatable<TRight>, IComparable<TRight>
+    where TLeft : IEquatable<TLeft>, IComparable<TLeft>
+{
+    public TwoPools(IEnumerable<TLeft>? leftSet = null, IEnumerable<TRight>? rightSet = null)
+    {
+        if (leftSet is not null)
+        {
+            left.AddRange(leftSet);
+            left.Sort();
+        }
+        if (rightSet is not null)
+        {
+            right.AddRange(rightSet);
+            right.Sort();
+        }
+        GenerateLinks();
+    }
+    #region fields
+    internal List<TLeft> left = new();
+    internal List<TRight> right = new();
+    /// <summary>
+    /// Index on the left, associated indices on the right
+    /// </summary>
+    internal Dictionary<int, List<int>> bindFromLeft = new();
+    /// <summary>
+    /// Index on the right, associated indices on the left
+    /// </summary>
+    internal Dictionary<int, List<int>> bindFromRight = new();
+    #endregion
+
+    #region public methods
+    /// <summary>
+    /// Adds an item to the left pool
+    /// </summary>
+    /// <param name="item"></param>
+    public void InsertLeft(TLeft item)
+    {
+        List<TwoPools<TLeft, TRight>.Link>? oldlinks = ExtractLinks();
+        left.Add(item);
+        left.Sort();
+        GenerateLinks(oldlinks);
+    }
+    /// <summary>
+    /// Removes an item from the left pool
+    /// </summary>
+    /// <param name="item"></param>
+    public void RemoveLeft(TLeft item)
+    {
+        List<TwoPools<TLeft, TRight>.Link>? oldlinks = ExtractLinks();
+        left.Remove(item);
+        left.Sort();
+        GenerateLinks(oldlinks);
+    }
+    /// <summary>
+    /// Adds an item to the right pool
+    /// </summary>
+    /// <param name="item"></param>
+    public void InsertRight(TRight item)
+    {
+        List<TwoPools<TLeft, TRight>.Link>? oldLinks = ExtractLinks();
+        right.Add(item);
+        right.Sort();
+        GenerateLinks(oldLinks);
+    }
+    /// <summary>
+    /// Removes an item from the right pool
+    /// </summary>
+    /// <param name="item"></param>
+    public void RemoveRight(TRight item)
+    {
+        List<TwoPools<TLeft, TRight>.Link>? oldLinks = ExtractLinks();
+        right.Remove(item);
+        right.Sort();
+        GenerateLinks(oldLinks);
+    }
+    /// <summary>
+    /// Adds a link between two items.
+    /// </summary>
+    /// <param name="itemL">Item on the left</param>
+    /// <param name="itemR">Item on the right</param>
+    /// <returns>true if a link was successfully added; otherwise false.</returns>
+    public bool EstablishLink(TLeft itemL, TRight itemR)
+    {
+        var rIndex = right.BinarySearch(itemR);
+        var lIndex = left.BinarySearch(itemL);
+        if (rIndex < 0 || lIndex < 0) return false;//One of the items was not found in the pools
+        bindFromLeft[lIndex].Add(rIndex);
+        bindFromLeft[lIndex].TrimExcess();
+        bindFromRight[rIndex].Add(lIndex);
+        bindFromRight[rIndex].TrimExcess();
+        return true;
+    }
+    /// <summary>
+    /// Removes a link between given items.
+    /// </summary>
+    /// <param name="itemL">Item in the left column</param>
+    /// <param name="itemR">Item in the right column</param>
+    /// <returns>true if something was removed</returns>
+    public bool RemoveLink(TLeft itemL, TRight itemR)
+    {
+        var rIndex = right.BinarySearch(itemR);
+        var lIndex = left.BinarySearch(itemL);
+        if (rIndex < 0 || lIndex < 0) return false;//One of the items was not found in the pools
+        var successL = bindFromLeft[lIndex].Remove(rIndex);
+        bindFromLeft[lIndex].TrimExcess();
+        var successR = bindFromRight[rIndex].Remove(lIndex);
+        bindFromRight[lIndex].TrimExcess();
+        return successL || successR;
+    }
+    public IEnumerable<TRight> IndexFromLeft(TLeft item)
+    {
+        int selected = left.BinarySearch(item);
+        if (selected < 0) throw new KeyNotFoundException("Item not found in left pool");
+        foreach (int indexR in bindFromLeft[selected])
+        {
+            yield return right[indexR];
+        }
+    }
+    public IEnumerable<TLeft> IndexFromRight(TRight item)
+    {
+        int selected = right.BinarySearch(item);
+        if (selected < 0) throw new KeyNotFoundException("Item not found in right pool");
+        foreach (int indexL in bindFromRight[selected])
+        {
+            yield return left[indexL];
+        }
+    }
+    #endregion
+    #region internals
+    /// <summary>
+    /// Extracts a list of links to be used in relinking later (used when inserting or removing items).
+    /// </summary>
+    /// <returns></returns>
+    private List<Link> ExtractLinks()
+    {
+        List<Link> res = new();
+        foreach (KeyValuePair<int, List<int>> kvp in bindFromLeft)
+        {
+            foreach (int rightside in kvp.Value)
+            {
+                res.Add(new Link(left[kvp.Key], right[rightside]));
+            }
+        }
+        return res;
+    }
+    /// <summary>
+    /// Generates link dictionary contents, optionally inheriting from a previous set
+    /// </summary>
+    /// <param name="links"></param>
+    /// <exception cref="NotImplementedException"></exception>
+    private void GenerateLinks(List<Link>? links = null)
+    {
+        bindFromLeft.Clear();
+        bindFromRight.Clear();
+        for (int i = 0; i < left.Count; i++)
+        {
+            bindFromLeft.Add(i, new());
+        }
+        for (int j = 0; j < right.Count; j++)
+        {
+            bindFromRight.Add(j, new());
+        }
+        if (links is null) return;
+        foreach (var link in links)
+        {
+            EstablishLink(link.ileft, link.iright);
+        }
+    }
+    #endregion
+
+    private struct Link : IEquatable<Link>
+    {
+        internal TLeft ileft;
+        internal TRight iright;
+
+        public Link(TLeft ileft, TRight iright)
+        {
+            this.ileft = ileft;
+            this.iright = iright;
+        }
+
+        public bool Equals(TwoPools<TLeft, TRight>.Link other)
+            => ileft.Equals(other.ileft) && iright.Equals(other.iright);
+    }
+}
+
