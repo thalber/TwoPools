@@ -32,7 +32,6 @@ public sealed class TwoPools<TLeft, TRight>
     /// </summary>
     private Dictionary<int, List<int>> bindFromRight = new();
     #endregion
-
     #region public methods
     /// <summary>
     /// Adds an item to the left pool
@@ -211,6 +210,28 @@ public sealed class TwoPools<TLeft, TRight>
     /// </summary>
     /// <returns></returns>
     public IEnumerable<TRight> EnumerateRight() => right.AsEnumerable();
+    /// <summary>
+    /// Concatenates two similar pools, retaining links. WARNING: SLOW
+    /// </summary>
+    /// <param name="p1"></param>
+    /// <param name="p2"></param>
+    /// <returns></returns>
+    public static TwoPools<TLeft, TRight> Stitch(TwoPools<TLeft, TRight> p1, TwoPools<TLeft, TRight> p2)
+    {
+        TwoPools<TLeft, TRight> res = new();
+        List<TwoPools<TLeft, TRight>.Link>
+            links1 = p1.ExtractLinks(),
+            links2 = p2.ExtractLinks();
+        res.InsertRangeLeft(p1.EnumerateLeft());
+        res.InsertRangeLeft(p2.EnumerateLeft());
+        res.InsertRangeRight(p1.EnumerateRight());
+        res.InsertRangeRight(p2.EnumerateRight());
+        res.AddLinksBulk(
+            links1.AsEnumerable().Concat(links2).Select(
+                (x) => new KeyValuePair<TLeft, TRight>(x.ileft, x.iright))
+            );
+        return res;
+    }
     #endregion
     #region internals
     /// <summary>
