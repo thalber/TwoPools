@@ -22,7 +22,7 @@ namespace TwoPools
             {
                 for (var j = i; j < 50; j++)
                 {
-                    test2.EstablishLink(i, j);
+                    test2.AddLink(i, j);
                 }
             }
 

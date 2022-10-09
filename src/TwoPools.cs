@@ -109,14 +109,13 @@ public sealed class TwoPools<TLeft, TRight>
         right.Clear();
         GenerateLinks();
     }
-
     /// <summary>
     /// Adds a link between two items.
     /// </summary>
     /// <param name="itemL">Item on the left</param>
     /// <param name="itemR">Item on the right</param>
     /// <returns>true if a link was successfully added; otherwise false.</returns>
-    public bool EstablishLink(TLeft itemL, TRight itemR)
+    public bool AddLink(TLeft itemL, TRight itemR)
     {
         var rIndex = right.BinarySearch(itemR);
         var lIndex = left.BinarySearch(itemL);
@@ -126,6 +125,14 @@ public sealed class TwoPools<TLeft, TRight>
         bindFromRight[rIndex].Add(lIndex);
         bindFromRight[rIndex].TrimExcess();
         return true;
+    }
+    /// <summary>
+    /// Establishes multiple links between pools.
+    /// </summary>
+    /// <param name="pairs"></param>
+    public void AddLinksBulk(IEnumerable<KeyValuePair<TLeft, TRight>> pairs)
+    {
+        foreach (var pair in pairs) AddLink(pair.Key, pair.Value);
     }
     /// <summary>
     /// Removes a link between given items.
@@ -143,6 +150,14 @@ public sealed class TwoPools<TLeft, TRight>
         var successR = bindFromRight[rIndex].Remove(lIndex);
         bindFromRight[lIndex].TrimExcess();
         return successL || successR;
+    }
+    /// <summary>
+    /// Removes multiple links between pools.
+    /// </summary>
+    /// <param name="pairs"></param>
+    public void RemoveLinksBulk(IEnumerable<KeyValuePair<TLeft, TRight>> pairs)
+    {
+        foreach (var pair in pairs) RemoveLink(pair.Key, pair.Value);
     }
     /// <summary>
     /// Yields all items on the right associated with a given item on the left.
@@ -234,7 +249,7 @@ public sealed class TwoPools<TLeft, TRight>
         if (links is null) return;
         foreach (var link in links)
         {
-            EstablishLink(link.ileft, link.iright);
+            AddLink(link.ileft, link.iright);
         }
     }
     #endregion
