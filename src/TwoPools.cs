@@ -79,6 +79,16 @@ public sealed class TwoPools<TLeft, TRight>
         GenerateLinks(oldLinks);
     }
     /// <summary>
+    /// Clears both pools.
+    /// </summary>
+    public void Clear()
+    {
+        left.Clear();
+        right.Clear();
+        GenerateLinks();
+    }
+
+    /// <summary>
     /// Adds a link between two items.
     /// </summary>
     /// <param name="itemL">Item on the left</param>
