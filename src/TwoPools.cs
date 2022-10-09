@@ -142,6 +142,28 @@ public sealed class TwoPools<TLeft, TRight>
             yield return left[indexL];
         }
     }
+    /// <summary>
+    /// Checks if left pool contains a given item.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public bool LeftContains(TLeft item) => left.Contains(item);
+    /// <summary>
+    /// Checks if right pool contains a given item.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    public bool RightContains(TRight item) => right.Contains(item);
+    /// <summary>
+    /// Returns a collection containing everything in the left pool.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<TLeft> EnumerateLeft() => left.AsEnumerable();
+    /// <summary>
+    /// Returns a collection containing everything in the right pool.
+    /// </summary>
+    /// <returns></returns>
+    public IEnumerable<TRight> EnumerateRight() => right.AsEnumerable();
     #endregion
     #region internals
     /// <summary>
