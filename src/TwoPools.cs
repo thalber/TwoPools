@@ -112,6 +112,12 @@ public sealed class TwoPools<TLeft, TRight>
         bindFromRight[lIndex].TrimExcess();
         return successL || successR;
     }
+    /// <summary>
+    /// Yields all items on the right associated with a given item on the left.
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    /// <exception cref="KeyNotFoundException"></exception>
     public IEnumerable<TRight> IndexFromLeft(TLeft item)
     {
         int selected = left.BinarySearch(item);
@@ -121,6 +127,12 @@ public sealed class TwoPools<TLeft, TRight>
             yield return right[indexR];
         }
     }
+    /// <summary>
+    /// Yields all items on the left associated with a given item on the right. 
+    /// </summary>
+    /// <param name="item"></param>
+    /// <returns></returns>
+    /// <exception cref="KeyNotFoundException"></exception>
     public IEnumerable<TLeft> IndexFromRight(TRight item)
     {
         int selected = right.BinarySearch(item);
