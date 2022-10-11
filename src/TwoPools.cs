@@ -232,6 +232,31 @@ public sealed class TwoPools<TLeft, TRight>
             );
         return res;
     }
+
+    public override string ToString()
+    {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < left.Count; i++)
+        {
+            
+            var leftExists = i >= left.Count;
+            sb.Append($"{i}.\t");
+            sb.Append(leftExists ? "[ ]" : left[i]);
+            sb.Append('{');
+            sb.Append(IndexFromLeft(left[i]).Select(x => x.ToString()).Aggregate((x, y) => $"{x}, {y}"));
+            //if (leftExists)
+            //{
+            //    bindFromLeft.TryGetValue(i, out var supposedLinks);
+            //    if (supposedLinks != null) sb.Append(supposedLinks.Select(x => x.ToString()).Aggregate((x, y) => $"{x}, {y}"));
+            //}
+            ////sb.Append('\t');
+            sb.Append('}');
+            //sb.Append(i >= right.Count ? "[ ]" : right[i]);
+            sb.Append('\n');
+            //sb.AppendFormat("{0}\t{1}", (i > left.Count ? "[ ]" : left[i]), (i > right.Count ? "[ ]" : right[i]));
+        }
+        return sb.ToString();
+    }
     #endregion
     #region internals
     /// <summary>
