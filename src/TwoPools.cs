@@ -205,13 +205,13 @@ public sealed class TwoPools<TLeft, TRight>
     /// </summary>
     /// <param name="item"></param>
     /// <returns></returns>
-    public bool LeftContains(TLeft item) => left.Contains(item);
+    public bool LeftContains(TLeft item) => left.BinarySearch(item) >= 0;
     /// <summary>
     /// Checks if right pool contains a given item.
     /// </summary>
     /// <param name="item"></param>
     /// <returns></returns>
-    public bool RightContains(TRight item) => right.Contains(item);
+    public bool RightContains(TRight item) => right.BinarySearch(item) >= 0;
     /// <summary>
     /// Returns a collection containing everything in the left pool.
     /// </summary>
