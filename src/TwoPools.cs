@@ -39,6 +39,7 @@ public sealed class TwoPools<TLeft, TRight>
     /// <param name="item"></param>
     public void InsertLeft(TLeft item)
     {
+        if (LeftContains(item)) return;
         List<TwoPools<TLeft, TRight>.Link>? oldlinks = ExtractLinks();
         left.Add(item);
         left.Sort();
@@ -51,7 +52,12 @@ public sealed class TwoPools<TLeft, TRight>
     public void InsertRangeLeft(IEnumerable<TLeft> items)
     {
         List<TwoPools<TLeft, TRight>.Link>? oldlinks = ExtractLinks();
-        left.AddRange(items);
+        foreach (var item in items)
+        {
+            if (LeftContains(item)) continue;
+            left.Add(item);
+        }
+        //left.AddRange(items);
         left.Sort();
         GenerateLinks(oldlinks);
     }
@@ -72,6 +78,7 @@ public sealed class TwoPools<TLeft, TRight>
     /// <param name="item"></param>
     public void InsertRight(TRight item)
     {
+        if (RightContains(item)) return;
         List<TwoPools<TLeft, TRight>.Link>? oldLinks = ExtractLinks();
         right.Add(item);
         right.Sort();
@@ -84,7 +91,12 @@ public sealed class TwoPools<TLeft, TRight>
     public void InsertRangeRight(IEnumerable<TRight> items)
     {
         List<TwoPools<TLeft, TRight>.Link>? oldLinks = ExtractLinks();
-        right.AddRange(items);
+        foreach (var item in items)
+        {
+            if (RightContains(item)) continue;
+            right.Add(item);
+        }
+        //right.AddRange(items);
         right.Sort();
         GenerateLinks(oldLinks);
     }
