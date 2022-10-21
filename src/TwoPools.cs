@@ -255,7 +255,7 @@ public sealed class TwoPools<TLeft, TRight>
             sb.Append($"{i}.\t");
             sb.Append(leftExists ? "[ ]" : left[i]);
             sb.Append('{');
-            sb.Append(IndexFromLeft(left[i]).Select(x => x.ToString()).Aggregate((x, y) => $"{x}, {y}"));
+            sb.Append(StitchSeq(IndexFromLeft(left[i]).Select(x => x.ToString())));
             //if (leftExists)
             //{
             //    bindFromLeft.TryGetValue(i, out var supposedLinks);
@@ -311,7 +311,7 @@ public sealed class TwoPools<TLeft, TRight>
         }
     }
     #endregion
-
+    public static string StitchSeq(IEnumerable<string> coll) => coll is null || coll.Count() is 0 ? string.Empty : coll.Aggregate((x, y) => $"{x}, {y}");
     private struct Link : IEquatable<Link>
     {
         internal TLeft ileft;
