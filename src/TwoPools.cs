@@ -54,7 +54,7 @@ public sealed class TwoPools<TLeft, TRight>
         List<TwoPools<TLeft, TRight>.Link>? oldlinks = ExtractLinks();
         foreach (var item in items)
         {
-            if (LeftContains(item)) continue;
+            if (left.Contains(item)) continue;
             left.Add(item);
         }
         //left.AddRange(items);
@@ -93,7 +93,7 @@ public sealed class TwoPools<TLeft, TRight>
         List<TwoPools<TLeft, TRight>.Link>? oldLinks = ExtractLinks();
         foreach (var item in items)
         {
-            if (RightContains(item)) continue;
+            if (right.Contains(item)) continue;
             right.Add(item);
         }
         //right.AddRange(items);
